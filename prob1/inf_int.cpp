@@ -1,9 +1,10 @@
 #pragma once
 #include "inf_int.h"
+#pragma warning (disable : 4996)
 
 //constructor
 inf_int::inf_int() {// assign 0 as a default value
-	this->digits = new char[2]; //µ¿Àû ÇÒ´ç
+	this->digits = new char[2]; //ë™ì  í• ë‹¹
 
 	this->digits[0] = '0';
 	this->digits[1] = '\0';
@@ -14,7 +15,7 @@ inf_int::inf_int() {// assign 0 as a default value
 inf_int::inf_int(int n) {
 	char buf[100];
 
-	if (n < 0) { //À½¼ö Ã³¸®
+	if (n < 0) { //ìŒìˆ˜ ì²˜ë¦¬
 		this->thesign = false;
 		n = -n;
 	}
@@ -29,8 +30,8 @@ inf_int::inf_int(int n) {
 		i++;
 	}
 
-	if (i == 0) { // ¼ıÀÚÀÇ Àı´ñ°ªÀÌ 0ÀÏ °æ¿ì
-		new (this) inf_int(); //»ı¼ºÀÚ ÀçÈ£Ãâ
+	if (i == 0) { // ìˆ«ìì˜ ì ˆëŒ“ê°’ì´ 0ì¼ ê²½ìš°
+		new (this) inf_int(); //ìƒì„±ì ì¬í˜¸ì¶œ
 	}
 	else {
 		buf[i] = '\0';
@@ -43,9 +44,30 @@ inf_int::inf_int(int n) {
 
 inf_int::inf_int(const char* str) {// you may modify this to "inf_int(const string);"
 	// to be filled
-	// ºÎÈ£ Ã³¸®
-	// "100"ÀÌ µé¾î¿Ô´Ù¸é ³»ºÎ Ç¥Çö¿¡ ¸Â°Ô "001"·Î º¯È¯
+	// ë¶€í˜¸ ì²˜ë¦¬
+	// "100"ì´ ë“¤ì–´ì™”ë‹¤ë©´ ë‚´ë¶€ í‘œí˜„ì— ë§ê²Œ "001"ë¡œ ë³€í™˜
 	// ex) "-1053" -> thesign=false, digits="3501", len=4
+	int i = 0;
+	int len_str = strlen(str);
+
+	if (str[0] == '-') { // ìŒìˆ˜ì¸ì§€ í™•ì¸
+		this->thesign = false;
+		i++;
+	}
+	else {
+		this->thesign = true;
+	}
+
+	// ë©”ëª¨ë¦¬ í• ë‹¹
+	this->digits = new char[len_str - i + 1];
+
+	// ì—­ìˆœìœ¼ë¡œ ì €ì¥
+	for (int j = len_str - 1, k = 0; j >= i; --j, ++k) {
+		this->digits[k] = str[j];
+	}
+
+	this->digits[len_str - i] = '\0';
+	this->length = len_str - i;
 }
 
 inf_int::inf_int(const inf_int& a) {// copy constructor
@@ -56,13 +78,13 @@ inf_int::inf_int(const inf_int& a) {// copy constructor
 	this->thesign = a.thesign;
 }
 inf_int::~inf_int() {// destructor
-	delete digits;		// ¸Ş¸ğ¸® ÇÒ´ç ÇØÁ¦
+	delete digits;		// ë©”ëª¨ë¦¬ í• ë‹¹ í•´ì œ
 }
 
 //operator
-inf_int& inf_int::operator=(const inf_int&) {
+inf_int& inf_int::operator=(const inf_int& a) {
 	if (this->digits) {
-		delete this->digits;		// ÀÌ¹Ì ¹®ÀÚ¿­ÀÌ ÀÖÀ» °æ¿ì Á¦°Å.
+		delete this->digits;		// ì´ë¯¸ ë¬¸ìì—´ì´ ìˆì„ ê²½ìš° ì œê±°.
 	}
 	this->digits = new char[a.length + 1];
 
@@ -75,19 +97,45 @@ inf_int& inf_int::operator=(const inf_int&) {
 
 bool operator==(const inf_int& a, const inf_int& b) {
 	// we assume 0 is always positive.
-	if ((strcmp(a.digits, b.digits) == 0) && a.thesign == b.thesign)	// ºÎÈ£°¡ °°°í, Àı´ñ°ªÀÌ ÀÏÄ¡ÇØ¾ßÇÔ.
+	if ((strcmp(a.digits, b.digits) == 0) && a.thesign == b.thesign)	// ë¶€í˜¸ê°€ ê°™ê³ , ì ˆëŒ“ê°’ì´ ì¼ì¹˜í•´ì•¼í•¨.
 		return true;
 	return false;
 }
 bool operator!=(const inf_int& a, const inf_int& b) {
 	return !operator==(a, b);
 }
-bool operator>(const inf_int&, const inf_int&) {
+bool operator>(const inf_int& a, const inf_int& b) {
 	// to be filled
-	// Àı´ë°ª ºñ±³
-	// µÑ ´Ù ¾ç¼öÀÏ °æ¿ì Àı´ñ°ª ºñ±³ÇÑ °ÍÀ» ±×´ë·Î return
-	// µÑ ´Ù À½¼öÀÏ °æ¿ì Àı´ñ°ª ºñ±³ÀÇ °ÍÀ» ¹İÀüÇÏ¿© return
-	// ºÎÈ£°¡ ´Ù¸¦ °æ¿ì, a°¡ ¾ç¼öÀÏ °æ¿ì b´Â À½¼ö, a°¡ À½¼öÀÏ °æ¿ì b´Â ¾ç¼öÀÌ±â¿¡ aÀÇ ºÎÈ£Áø¸®°ªÀ» ¹İÈ¯ÇÏ¸é µÊ
+	// ì ˆëŒ€ê°’ ë¹„êµ
+	// ë‘˜ ë‹¤ ì–‘ìˆ˜ì¼ ê²½ìš° ì ˆëŒ“ê°’ ë¹„êµí•œ ê²ƒì„ ê·¸ëŒ€ë¡œ return
+	// ë‘˜ ë‹¤ ìŒìˆ˜ì¼ ê²½ìš° ì ˆëŒ“ê°’ ë¹„êµì˜ ê²ƒì„ ë°˜ì „í•˜ì—¬ return
+	// ë¶€í˜¸ê°€ ë‹¤ë¥¼ ê²½ìš°, aê°€ ì–‘ìˆ˜ì¼ ê²½ìš° bëŠ” ìŒìˆ˜, aê°€ ìŒìˆ˜ì¼ ê²½ìš° bëŠ” ì–‘ìˆ˜ì´ê¸°ì— aì˜ ë¶€í˜¸ì§„ë¦¬ê°’ì„ ë°˜í™˜í•˜ë©´ ë¨
+
+	//ë¶€í˜¸ê°€ ë‹¤ë¥¸ ê²½ìš°
+	if (a.thesign != b.thesign) {
+		if (a.thesign == true)return true;
+		else return false;
+	}
+
+	//ë¶€í˜¸ê°€ ê°™ì€ ê²½ìš°
+	if (a.length != b.length) { //ê¸¸ì´ ë‹¤ë¥¼ ë•Œ
+		if (a.thesign == true) {//ë‘˜ ë‹¤ ì–‘ìˆ˜ì¼ ë•Œ
+			if (a.length > b.length)return true;
+			else return false;
+		}
+		else { //ë‘˜ ë‹¤ ìŒìˆ˜ì¼ ë•Œ
+			if (a.length > b.length)return false;
+			else return true;
+		}
+	}
+	else { //ê¸¸ì´ ê°™ì„ ë•Œ
+		for (int i = a.length - 1; i >= 0; i--) {
+			if (a.digits[i] != b.digits[i]) {
+				return (a.digits[i] > b.digits[i]) == a.thesign;
+			}
+		}
+	}
+	return false;
 }
 bool operator<(const inf_int& a, const inf_int& b) {
 	if (operator>(a, b) || operator==(a, b)) {
@@ -102,7 +150,7 @@ inf_int operator+(const inf_int& a, const inf_int& b) {
 	inf_int c;
 	unsigned int i;
 
-	if (a.thesign == b.thesign) {	// ÀÌÇ×ÀÇ ºÎÈ£°¡ °°À» °æ¿ì + ¿¬»êÀÚ·Î ¿¬»ê
+	if (a.thesign == b.thesign) {	// ì´í•­ì˜ ë¶€í˜¸ê°€ ê°™ì„ ê²½ìš° + ì—°ì‚°ìë¡œ ì—°ì‚°
 		for (i = 0; i < a.length; i++) {
 			c.Add(a.digits[i], i + 1);
 		}
@@ -114,19 +162,91 @@ inf_int operator+(const inf_int& a, const inf_int& b) {
 
 		return c;
 	}
-	else {	// ÀÌÇ×ÀÇ ºÎÈ£°¡ ´Ù¸¦ °æ¿ì - ¿¬»êÀÚ·Î ¿¬»ê
+	else {	// ì´í•­ì˜ ë¶€í˜¸ê°€ ë‹¤ë¥¼ ê²½ìš° - ì—°ì‚°ìë¡œ ì—°ì‚°
 		c = b;
 		c.thesign = a.thesign;
 
 		return a - c;
 	}
 }
-inf_int operator-(const inf_int&, const inf_int&) {
+inf_int operator-(const inf_int& a, const inf_int& b) {
 	//to be filled
+	inf_int c;
+	unsigned int i;
+
+	if (a > b) {
+		c.thesign = true;
+	}
+	else if (a < b) {
+		c.thesign = false;
+	}
+	else { // a == b -> a - b == 0
+		c.thesign = true;
+	}
+	unsigned int max_length = (a.length > b.length) ? a.length : b.length;
+	int borrow = 0;
+	for (i = 0; i < max_length; i++) {
+		int temp = 0;
+		if (i < a.length)temp += a.digits[i] - '0';
+		if (i < b.length)temp -= b.digits[i] - '0';
+
+		temp -= borrow; //ì´ì „ì— ë¹Œë¦° ê²ƒ ë¹¼ê¸°
+		if (temp < 0) {
+			temp += 10;
+			borrow = 1;
+		}
+		else {
+			borrow = 0;
+		}
+
+		c.Add(temp + '0', i + 1);
+	}
+
+	return c;
 }
-inf_int operator*(const inf_int&, const inf_int&) {
-	//to be filled
+inf_int operator*(const inf_int& a, const inf_int& b) {
+	// Initialize result as zero.
+	inf_int c("0");
+
+	for (unsigned int i = 0; i < a.length; ++i) {
+		int carry = 0;
+		for (unsigned int j = 0; j < b.length || carry > 0; ++j) {
+			int temp = carry;
+			if (j < b.length) {
+				temp += (a.digits[i] - '0') * (b.digits[j] - '0');
+			}
+
+			if (i + j < c.length) { // If the position exists in the result.
+				temp += c.digits[i + j] - '0';
+				c.digits[i + j] = temp % 10 + '0';
+			}
+			else { // If the position does not exist in the result.
+				char* new_digits = new char[c.length + 2];
+				std::copy(c.digits, c.digits + c.length, new_digits);
+				new_digits[c.length] = temp % 10 + '0';
+				new_digits[c.length + 1] = '\0';
+
+				delete[] c.digits;
+
+				c.digits = new_digits;
+				++c.length;
+			}
+
+			carry = temp / 10;
+		}
+	}
+
+	// Determine sign of the result.
+	if ((a.thesign && b.thesign) || (!a.thesign && !b.thesign)) {
+		c.thesign = true;
+	}
+	else {
+		c.thesign = false;
+	}
+
+	return c;
 }
+
 // friend inf_int operator/(const inf_int& , const inf_int&); // not required
 
 ostream& operator<<(ostream& out, const inf_int& a) {
@@ -142,30 +262,30 @@ ostream& operator<<(ostream& out, const inf_int& a) {
 }
 // friend istream& operator>>(istream& , inf_int&);    // not required
 
-void inf_int::Add(const char num, const unsigned int index)	// aÀÇ index ÀÚ¸®¼ö¿¡ nÀ» ´õÇÑ´Ù. 0<=n<=9, ex) a°¡ 391ÀÏ¶§, Add(a, 2, 2)ÀÇ °á°ú´Â 411
+void inf_int::Add(const char num, const unsigned int index)	// aì˜ index ìë¦¬ìˆ˜ì— nì„ ë”í•œë‹¤. 0<=n<=9, ex) aê°€ 391ì¼ë•Œ, Add(a, 2, 2)ì˜ ê²°ê³¼ëŠ” 411
 {
 	if (this->length < index) {
 		this->digits = (char*)realloc(this->digits, index + 1);
 
-		if (this->digits == NULL) {		// ÇÒ´ç ½ÇÆĞ ¿¹¿ÜÃ³¸®
+		if (this->digits == NULL) {		// í• ë‹¹ ì‹¤íŒ¨ ì˜ˆì™¸ì²˜ë¦¬
 			cout << "Memory reallocation failed, the program will terminate." << endl;
 
 			exit(0);
 		}
 
-		this->length = index;					// ±æÀÌ ÁöÁ¤
-		this->digits[this->length] = '\0';	// ³Î¹®ÀÚ »ğÀÔ
+		this->length = index;					// ê¸¸ì´ ì§€ì •
+		this->digits[this->length] = '\0';	// ë„ë¬¸ì ì‚½ì…
 	}
 
-	if (this->digits[index - 1] < '0') {	// ¿¬»ê Àü¿¡ '0'º¸´Ù ÀÛÀº ¾Æ½ºÅ°°ªÀÎ °æ¿ì 0À¸·Î Ã¤¿ò. ¾²¿©ÁöÁö ¾Ê¾Ò´ø »õ·Î¿î ÀÚ¸®¼öÀÏ °æ¿ì ¹ß»ı
+	if (this->digits[index - 1] < '0') {	// ì—°ì‚° ì „ì— '0'ë³´ë‹¤ ì‘ì€ ì•„ìŠ¤í‚¤ê°’ì¸ ê²½ìš° 0ìœ¼ë¡œ ì±„ì›€. ì“°ì—¬ì§€ì§€ ì•Šì•˜ë˜ ìƒˆë¡œìš´ ìë¦¬ìˆ˜ì¼ ê²½ìš° ë°œìƒ
 		this->digits[index - 1] = '0';
 	}
 
-	this->digits[index - 1] += num - '0';	// °ª ¿¬»ê
+	this->digits[index - 1] += num - '0';	// ê°’ ì—°ì‚°
 
 
-	if (this->digits[index - 1] > '9') {	// ÀÚ¸®¿Ã¸²ÀÌ ¹ß»ıÇÒ °æ¿ì
-		this->digits[index - 1] -= 10;	// ÇöÀç ÀÚ¸´¼ö¿¡¼­ (¾Æ½ºÅ°°ª) 10À» »©°í
-		Add('1', index + 1);			// À­ÀÚ¸®¿¡ 1À» ´õÇÑ´Ù
+	if (this->digits[index - 1] > '9') {	// ìë¦¬ì˜¬ë¦¼ì´ ë°œìƒí•  ê²½ìš°
+		this->digits[index - 1] -= 10;	// í˜„ì¬ ìë¦¿ìˆ˜ì—ì„œ (ì•„ìŠ¤í‚¤ê°’) 10ì„ ë¹¼ê³ 
+		Add('1', index + 1);			// ìœ—ìë¦¬ì— 1ì„ ë”í•œë‹¤
 	}
 }
